@@ -4,6 +4,8 @@ import (
 	"fmt"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -12,20 +14,21 @@ import (
 type formatter struct{}
 
 func (f *formatter) Format(entry *logrus.Entry) ([]byte, error) {
-	timestamp := time.Now().Local().Format(DatetimeFormat)
+	timestamp := time.Now().Local().Format("2006/01/02 - 15:04:05")
 	var file string
 	var line int
 	if entry.Caller != nil {
 		file = filepath.Base(entry.Caller.File)
 		line = entry.Caller.Line
 	}
-	msg := fmt.Sprintf("%s %s %s line %d\n%s\n", timestamp, strings.ToUpper(entry.Level.String()), file, line, entry.Message)
+	msg := fmt.Sprintf("[%s] %s %s:%d %s\n", strings.ToUpper(entry.Level.String()), timestamp, file, line, entry.Message)
 	return []byte(msg), nil
 }
 
 func InitLogs(writer *rotatelogs.RotateLogs, Level logrus.Level) {
+	logrus.SetReportCaller(true)
 	logrus.SetLevel(Level)
-	logrus.SetOutput(writer)
+	logrus.SetOutput(io.MultiWriter(writer, os.Stdout))
 	logrus.SetFormatter(&formatter{})
 }
 
