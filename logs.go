@@ -19,7 +19,7 @@ func (f *formatter) Format(entry *logrus.Entry) ([]byte, error) {
 		file = filepath.Base(entry.Caller.File)
 		line = entry.Caller.Line
 	}
-	msg := fmt.Sprintf("%s %s [%s line %d]\n%s\n", timestamp, strings.ToUpper(entry.Level.String()), file, line, entry.Message)
+	msg := fmt.Sprintf("%s %s %s line %d\n%s\n", timestamp, strings.ToUpper(entry.Level.String()), file, line, entry.Message)
 	return []byte(msg), nil
 }
 
