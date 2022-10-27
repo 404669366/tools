@@ -9,8 +9,7 @@ import (
 	"time"
 )
 
-type formatter struct {
-}
+type formatter struct{}
 
 func (f *formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	timestamp := time.Now().Local().Format(DatetimeFormat)
