@@ -1,19 +1,33 @@
 package tools
 
 import (
+	"fmt"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
-func InitLogs(Level logrus.Level, FilePath, FileFormat string, MaxAge, RotationTime time.Duration) (*rotatelogs.RotateLogs, error) {
-	writer, err := LogsWriter(FilePath, FileFormat, MaxAge, RotationTime)
-	if err != nil {
-		return nil, err
+type formatter struct {
+}
+
+func (f *formatter) Format(entry *logrus.Entry) ([]byte, error) {
+	timestamp := time.Now().Local().Format(DatetimeFormat)
+	var file string
+	var line int
+	if entry.Caller != nil {
+		file = filepath.Base(entry.Caller.File)
+		line = entry.Caller.Line
 	}
+	msg := fmt.Sprintf("%s %s [%s line %d]\n%s\n", timestamp, strings.ToUpper(entry.Level.String()), file, line, entry.Message)
+	return []byte(msg), nil
+}
+
+func InitLogs(writer *rotatelogs.RotateLogs, Level logrus.Level) {
 	logrus.SetLevel(Level)
 	logrus.SetOutput(writer)
-	return writer, nil
+	logrus.SetFormatter(&formatter{})
 }
 
 //LogsWriter 日志切割writer FileFormat %Y-年 %m-月 %d-日 %H-时 %M-分 %S-秒
