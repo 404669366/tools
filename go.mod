@@ -6,6 +6,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.13.0
 	github.com/yelinaung/eng-name v0.0.0-20141214053408-d6af0256d2c0
 	gorm.io/driver/mysql v1.4.3
