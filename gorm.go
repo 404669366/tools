@@ -36,7 +36,12 @@ func GetMysql() *gorm.DB {
 	return mysql_
 }
 
-// InitGorm LogConfigs=>SlowThreshold 慢SQL阈值,LogLevel 日志级别,IgnoreRecordNotFoundError忽略ErrRecordNotFound(记录未找到)错误,Colorful 禁用彩色打印
+// InitGorm
+// LogConfigs
+//	SlowThreshold 慢SQL阈值
+//	LogLevel 日志级别
+//	IgnoreRecordNotFoundError 忽略ErrRecordNotFound(记录未找到)错误
+//	Colorful 禁用彩色打印
 func InitGorm(dialector gorm.Dialector, MaxIdleConns, MaxOpenConns int, ConnMaxLifetime time.Duration, LogWriters []io.Writer, LogConfigs logger.Config) *gorm.DB {
 	instance, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.New(
