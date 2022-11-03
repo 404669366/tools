@@ -5,9 +5,13 @@ import "github.com/bwmarrin/snowflake"
 var snow *snowflake.Node
 
 func InitSnowflake(node int) {
-	snow, _ = snowflake.NewNode(int64(node))
+	var err error
+	snow, err = snowflake.NewNode(int64(node))
+	if err != nil {
+		panic("init snowflake error : " + err.Error())
+	}
 }
 
-func GenerateId() int64 {
+func GetSnowflakeId() int64 {
 	return snow.Generate().Int64()
 }
