@@ -23,7 +23,7 @@ type MysqlConfig struct {
 	MaxIdleConns    int
 	MaxOpenConns    int
 	ConnMaxLifetime time.Duration
-	LogWriters      []io.Writer
+	LogWriters      io.Writer
 	LogConfigs      logger.Config
 }
 
@@ -42,10 +42,10 @@ func GetMysql() *gorm.DB {
 //	LogLevel 日志级别
 //	IgnoreRecordNotFoundError 忽略ErrRecordNotFound(记录未找到)错误
 //	Colorful 禁用彩色打印
-func InitGorm(dialector gorm.Dialector, MaxIdleConns, MaxOpenConns int, ConnMaxLifetime time.Duration, LogWriters []io.Writer, LogConfigs logger.Config) *gorm.DB {
+func InitGorm(dialector gorm.Dialector, MaxIdleConns, MaxOpenConns int, ConnMaxLifetime time.Duration, LogWriters io.Writer, LogConfigs logger.Config) *gorm.DB {
 	instance, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.New(
-			log.New(io.MultiWriter(LogWriters...), "\r\n", log.LstdFlags),
+			log.New(LogWriters, "\r\n", log.LstdFlags),
 			LogConfigs,
 		),
 	})
