@@ -1,12 +1,15 @@
 package tools
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"io"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -57,4 +60,35 @@ func InitGorm(dialector gorm.Dialector, MaxIdleConns, MaxOpenConns int, ConnMaxL
 	pool.SetMaxOpenConns(MaxOpenConns)
 	pool.SetConnMaxLifetime(ConnMaxLifetime)
 	return instance
+}
+
+type GormSliceString []string
+
+func (t *GormSliceString) Scan(val interface{}) error {
+	*t = strings.Split(val.(string), ",")
+	return nil
+}
+
+func (t GormSliceString) Value() (value driver.Value, err error) {
+	return strings.Join(t, ","), nil
+}
+
+type GormSliceInt []int
+
+func (t *GormSliceInt) Scan(val interface{}) error {
+	temps := strings.Split(val.(string), ",")
+	*t = make([]int, 0, len(temps))
+	for _, temp := range temps {
+		i, _ := strconv.Atoi(temp)
+		*t = append(*t, i)
+	}
+	return nil
+}
+
+func (t GormSliceInt) Value() (value driver.Value, err error) {
+	temp := make([]string, 0, len(t))
+	for _, v := range t {
+		temp = append(temp, strconv.Itoa(v))
+	}
+	return strings.Join(temp, ","), nil
 }
