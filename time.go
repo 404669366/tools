@@ -10,6 +10,16 @@ const (
 	DatetimeFormat = "2006-01-02 15:04:05"
 )
 
+func DateNow() *Date {
+	now := Date(time.Now())
+	return &now
+}
+
+func DateTimeNow() *DateTime {
+	now := DateTime(time.Now())
+	return &now
+}
+
 type Date time.Time
 
 func (lt *Date) MarshalJSON() ([]byte, error) {
