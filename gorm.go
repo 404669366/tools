@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm/logger"
 	"io"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -60,27 +62,27 @@ func InitGorm(dialector gorm.Dialector, MaxIdleConns, MaxOpenConns int, ConnMaxL
 	return instance
 }
 
-func DateNow() *Date {
-	now := Date(time.Now())
+func GormDateNow() *GormDate {
+	now := GormDate(time.Now())
 	return &now
 }
 
-type Date time.Time
+type GormDate time.Time
 
-func (t *Date) MarshalJSON() ([]byte, error) {
+func (t *GormDate) MarshalJSON() ([]byte, error) {
 	tTime := time.Time(*t)
 	return []byte(fmt.Sprintf("\"%v\"", tTime.Format(DateFormat))), nil
 }
 
-func (t *Date) Scan(v interface{}) error {
+func (t *GormDate) Scan(v interface{}) error {
 	if value, ok := v.(time.Time); ok {
-		*t = Date(value)
+		*t = GormDate(value)
 		return nil
 	}
 	return fmt.Errorf("can not convert %v to timestamp", v)
 }
 
-func (t Date) Value() (driver.Value, error) {
+func (t GormDate) Value() (driver.Value, error) {
 	tm := time.Time(t)
 	var zero time.Time
 	if tm.UnixNano() == zero.UnixNano() {
@@ -89,31 +91,31 @@ func (t Date) Value() (driver.Value, error) {
 	return tm, nil
 }
 
-func (t Date) ToTime() time.Time {
+func (t GormDate) ToTime() time.Time {
 	return time.Time(t)
 }
 
-func DateTimeNow() *DateTime {
-	now := DateTime(time.Now())
+func GormDateTimeNow() *GormDateTime {
+	now := GormDateTime(time.Now())
 	return &now
 }
 
-type DateTime time.Time
+type GormDateTime time.Time
 
-func (t *DateTime) MarshalJSON() ([]byte, error) {
+func (t *GormDateTime) MarshalJSON() ([]byte, error) {
 	tTime := time.Time(*t)
 	return []byte(fmt.Sprintf("\"%v\"", tTime.Format(DatetimeFormat))), nil
 }
 
-func (t *DateTime) Scan(v interface{}) error {
+func (t *GormDateTime) Scan(v interface{}) error {
 	if value, ok := v.(time.Time); ok {
-		*t = DateTime(value)
+		*t = GormDateTime(value)
 		return nil
 	}
 	return fmt.Errorf("can not convert %v to timestamp", v)
 }
 
-func (t DateTime) Value() (driver.Value, error) {
+func (t GormDateTime) Value() (driver.Value, error) {
 	tm := time.Time(t)
 	var zero time.Time
 	if tm.UnixNano() == zero.UnixNano() {
@@ -122,6 +124,41 @@ func (t DateTime) Value() (driver.Value, error) {
 	return tm, nil
 }
 
-func (t DateTime) ToTime() time.Time {
+func (t GormDateTime) ToTime() time.Time {
 	return time.Time(t)
+}
+
+type GormSliceInt []int
+
+func (t *GormSliceInt) Scan(val interface{}) error {
+	if value := string(val.([]byte)); value != "" {
+		temps := strings.Split(value, ",")
+		*t = make([]int, 0, len(temps))
+		for _, temp := range temps {
+			v, _ := strconv.Atoi(temp)
+			*t = append(*t, v)
+		}
+	}
+	return nil
+}
+
+func (t GormSliceInt) Value() (value driver.Value, err error) {
+	temp := make([]string, 0, len(t))
+	for _, v := range t {
+		temp = append(temp, fmt.Sprintf("%v", v))
+	}
+	return strings.Join(temp, ","), nil
+}
+
+type GormSliceString []string
+
+func (t *GormSliceString) Scan(val interface{}) error {
+	if value := string(val.([]byte)); value != "" {
+		*t = strings.Split(value, ",")
+	}
+	return nil
+}
+
+func (t GormSliceString) Value() (value driver.Value, err error) {
+	return strings.Join(t, ","), nil
 }
