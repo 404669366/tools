@@ -131,9 +131,9 @@ func (t GormDateTime) ToTime() time.Time {
 type GormSliceInt []int
 
 func (t *GormSliceInt) Scan(val interface{}) error {
+	*t = make([]int, 0)
 	if value := string(val.([]byte)); value != "" {
 		temps := strings.Split(value, ",")
-		*t = make([]int, 0, len(temps))
 		for _, temp := range temps {
 			v, _ := strconv.Atoi(temp)
 			*t = append(*t, v)
@@ -153,6 +153,7 @@ func (t GormSliceInt) Value() (value driver.Value, err error) {
 type GormSliceString []string
 
 func (t *GormSliceString) Scan(val interface{}) error {
+	*t = make([]string, 0)
 	if value := string(val.([]byte)); value != "" {
 		*t = strings.Split(value, ",")
 	}
