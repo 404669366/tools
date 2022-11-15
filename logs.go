@@ -6,7 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -18,7 +17,7 @@ func (f *formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var file string
 	var line int
 	if entry.Caller != nil {
-		file = filepath.Base(entry.Caller.File)
+		file = entry.Caller.File
 		line = entry.Caller.Line
 	}
 	msg := fmt.Sprintf("[%s] %s %s:%d %s\n", strings.ToUpper(entry.Level.String()), timestamp, file, line, entry.Message)
